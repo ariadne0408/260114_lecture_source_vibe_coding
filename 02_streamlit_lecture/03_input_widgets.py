@@ -17,7 +17,7 @@ st.header("1. 텍스트 입력")
 st.subheader("한 줄 입력")
 name = st.text_input(
     "이름을 입력하세요:",
-    placeholder="홍길동",
+    placeholder="유혜린",
     help="이름을 입력하는 필드입니다"
 )
 if name:
@@ -37,8 +37,8 @@ password = st.text_input(
 st.subheader("여러 줄 입력")
 message = st.text_area(
     "메시지를 입력하세요:",
-    placeholder="여기에 메시지를 작성하세요...",
-    height=150
+    placeholder="여기에 메시지를 작성하세요",
+    height=200
 )
 if message:
     st.info(f"입력한 글자 수: {len(message)}자")
@@ -55,7 +55,7 @@ age = st.number_input(
     "나이:",
     min_value=0,
     max_value=120,
-    value=25,
+    value=33,
     step=1
 )
 st.write(f"입력한 나이: {age}세")
@@ -236,6 +236,90 @@ st.markdown("""
   - 과체중 (23 ~ 24.9)
   - 비만 (≥ 25)
 """)
+
+import streamlit as st
+
+st.title("BMI 계산기.💪")
+
+st.markdown(
+    """
+    BMI(체질량지수)는 **체중(kg)** 을 **신장(m)의 제곱**으로 나눈 값입니다.  
+    아래에서 키(cm)와 체중(kg)을 직접 입력한 뒤, 버튼을 눌러 BMI를 확인해 보세요.
+    """
+)
+
+# 키 입력 (cm) - number_input
+height_cm = st.number_input(
+    "키 (cm)",
+    min_value=100.0,
+    max_value=250.0,
+    value=170.0,
+    step=0.5,
+    format="%.1f"
+)
+
+# 체중 입력 (kg) - number_input
+weight_kg = st.number_input(
+    "체중 (kg)",
+    min_value=20.0,
+    max_value=200.0,
+    value=65.0,
+    step=0.5,
+    format="%.1f"
+)
+
+def calculate_bmi(weight, height_cm):
+    height_m = height_cm / 100
+    if height_m <= 0:
+        return None
+    bmi = weight / (height_m ** 2)
+    return round(bmi, 1)
+
+# '측정하기' 버튼
+if st.button("측정하기"):
+    bmi = calculate_bmi(weight_kg, height_cm)
+
+    if bmi is None:
+        st.error("키 입력에 문제가 있습니다. 다시 확인해주세요.")
+    else:
+        st.subheader(f"당신의 BMI: **{bmi}**")
+
+        # BMI 구간 분류
+        if bmi < 18.5:
+            status = "저체중"
+            detail = "영양 상태와 식습관을 점검하고, 필요 시 전문가와 상담이 필요할 수 있습니다."
+            color = "blue"
+        elif 18.5 <= bmi <= 22.9:
+            status = "정상 체중"
+            detail = "현재 체중을 유지하기 위해 규칙적인 운동과 균형 잡힌 식단을 유지해 주세요."
+            color = "green"
+        elif 23 <= bmi <= 24.9:
+            status = "과체중"
+            detail = "가벼운 체중 조절과 생활습관 개선(식습관, 활동량 증가)을 고려해 볼 수 있습니다."
+            color = "orange"
+        else:  # bmi >= 25
+            status = "비만"
+            detail = "체중 관리가 필요할 수 있으며, 건강검진 및 전문가 상담을 권장합니다."
+            color = "red"
+
+        st.markdown(
+            f"**판정: <span style='color:{color}'>{status}</span>**",
+            unsafe_allow_html=True
+        )
+        st.write(detail)
+
+        st.info(
+            """
+            ### BMI 구간(아시아/대한민국 기준)
+            - 저체중: **BMI < 18.5**
+            - 정상 체중: **18.5 ~ 22.9**
+            - 과체중: **23.0 ~ 24.9**
+            - 비만: **25.0 이상**
+            """
+        )
+else:
+    st.caption("키와 체중을 입력한 뒤, '측정하기' 버튼을 눌러주세요.")
+
 
 # 예시 답안
 with st.expander("💡 과제 1 예시 답안"):
